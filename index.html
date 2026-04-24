@@ -1476,7 +1476,7 @@
                 <textarea id="customerNote" rows="2" placeholder="Alguna especificación..."></textarea>
             </div>
             <div class="cart-actions">
-                <button class="whatsapp-btn" id="whatsappBtn" onclick="sendToWhatsapp()" disabled>
+                <button class="whatsapp-btn" id="whatsappBtn" onclick="sendToWhatsapp()">
                     📱 Pedir por WhatsApp
                 </button>
                 <button class="continue-shopping" onclick="toggleCart()">
@@ -1568,7 +1568,6 @@
                         <p style="font-size: 0.9rem; margin-top: 8px;">¡Explora nuestras kokedamas!</p>
                     </div>
                 `;
-                document.getElementById('whatsappBtn').disabled = true;
             } else {
                 cartItemsEl.innerHTML = cart.map(item => {
                     const product = products.find(p => p.id === item.productId);
