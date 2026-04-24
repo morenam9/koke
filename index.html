@@ -269,15 +269,24 @@
             align-items: center;
             justify-content: center;
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
         }
 
         .hero-image img {
             width: 100%;
-            max-width: 280px;
+            max-width: 350px;
             height: auto;
             object-fit: contain;
             animation: floatSubtle 4s ease-in-out infinite;
+        }
+
+        @media (max-width: 768px) {
+            .hero-image {
+                max-width: 280px;
+            }
+            .hero-image img {
+                max-width: 220px;
+            }
         }
 
         @keyframes floatSubtle {
@@ -1324,7 +1333,7 @@
                 </div>
             </div>
             <div class="hero-image">
-                <img src="img/imagen animada.png" alt="Kokedama">
+                <img src="img/imagen_animada-removebg-preview.png" alt="Kokedama">
             </div>
         </div>
     </section>
