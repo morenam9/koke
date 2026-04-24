@@ -268,153 +268,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            width: 100%;
+            max-width: 400px;
         }
 
-        .hero-image-main {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .hero-image img {
+            width: 100%;
+            max-width: 280px;
+            height: auto;
+            object-fit: contain;
+            animation: floatSubtle 4s ease-in-out infinite;
         }
 
-        .cat-container {
-            position: relative;
-            width: 180px;
-            height: 180px;
-            animation: catBounce 3s ease-in-out infinite;
-        }
-
-        .cat-body {
-            width: 140px;
-            height: 120px;
-            background: linear-gradient(145deg, #FFB74D, #FF9800);
-            border-radius: 50% 50% 45% 45%;
-            position: absolute;
-            bottom: 0;
-            left: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
-        .cat-head {
-            width: 100px;
-            height: 90px;
-            background: linear-gradient(145deg, #FFB74D, #FF9800);
-            border-radius: 50% 50% 45% 45%;
-            position: absolute;
-            top: 0;
-            left: 40px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .cat-ear {
-            width: 0;
-            height: 0;
-            border-left: 18px solid transparent;
-            border-right: 18px solid transparent;
-            border-bottom: 35px solid #FF9800;
-            position: absolute;
-            top: -15px;
-        }
-
-        .cat-ear.left { left: 5px; transform: rotate(-15deg); }
-        .cat-ear.right { right: 5px; transform: rotate(15deg); }
-
-        .cat-face {
-            position: relative;
-            top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .cat-eyes {
-            display: flex;
-            gap: 25px;
-        }
-
-        .cat-eye {
-            width: 18px;
-            height: 22px;
-            background: #333;
-            border-radius: 50%;
-            position: relative;
-            animation: blink 4s infinite;
-        }
-
-        .cat-eye::after {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 4px;
-            left: 4px;
-        }
-
-        .cat-nose {
-            width: 10px;
-            height: 8px;
-            background: #FF8A80;
-            border-radius: 50% 50% 40% 40%;
-        }
-
-        .cat-mouth {
-            width: 20px;
-            height: 10px;
-            border: 2px solid #333;
-            border-top: none;
-            border-radius: 0 0 50% 50%;
-        }
-
-        .kokedama-float {
-            position: absolute;
-            right: 0;
-            bottom: 20px;
-            font-size: 4rem;
-            animation: kokedamaFloat 2.5s ease-in-out infinite;
-            animation-delay: 0.5s;
-        }
-
-        @keyframes float {
+        @keyframes floatSubtle {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        @keyframes catBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-
-        @keyframes blink {
-            0%, 45%, 55%, 100% { transform: scaleY(1); }
-            50% { transform: scaleY(0.1); }
-        }
-
-        @keyframes kokedamaFloat {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
-        }
-
-        .floating-leaf {
-            position: absolute;
-            font-size: 3rem;
-            animation: float 4s ease-in-out infinite;
-        }
-
-        .floating-leaf:nth-child(2) {
-            top: 10%;
-            right: 10%;
-            animation-delay: -1s;
-        }
-
-        .floating-leaf:nth-child(3) {
-            bottom: 20%;
-            left: 5%;
-            animation-delay: -2s;
+            50% { transform: translateY(-12px); }
         }
 
         /* Products */
@@ -1456,22 +1324,7 @@
                 </div>
             </div>
             <div class="hero-image">
-                <div class="cat-container">
-                    <div class="cat-head">
-                        <div class="cat-ear left"></div>
-                        <div class="cat-ear right"></div>
-                        <div class="cat-face">
-                            <div class="cat-eyes">
-                                <div class="cat-eye"></div>
-                                <div class="cat-eye"></div>
-                            </div>
-                            <div class="cat-nose"></div>
-                            <div class="cat-mouth"></div>
-                        </div>
-                    </div>
-                    <div class="cat-body"></div>
-                    <div class="kokedama-float"><img src="img/imagen animada.png" alt="Kokedama" style="width:120px;height:auto;object-fit:contain;"></div>
-                </div>
+                <img src="img/imagen animada.png" alt="Kokedama">
             </div>
         </div>
     </section>
