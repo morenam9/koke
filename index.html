@@ -1011,12 +1011,126 @@
             opacity: 1;
         }
 
-        .footer-bottom {
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 24px;
+.footer-bottom {
             text-align: center;
             opacity: 0.6;
             font-size: 0.9rem;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+        }
+
+        .admin-login {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60vh;
+        }
+
+        .login-box {
+            background: white;
+            padding: 48px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .login-box h3 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 24px;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+
+        .login-box .btn {
+            width: 100%;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            border: none;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .pedidos-list {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .resumen-mensual {
+            background: var(--primary);
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            margin-top: 24px;
+        }
+
+        .stock-table {
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .stock-table th, .stock-table td {
+            padding: 16px;
+            text-align: left;
+        }
+
+        .stock-table th {
+            background: var(--primary);
+            color: white;
+        }
+
+        .stock-table tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        .nuevo-pedido-form {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .nuevo-pedido-form input, .nuevo-pedido-form select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            margin-bottom: 12px;
         }
 
         /* Mobile Menu */
@@ -1313,6 +1427,7 @@
                 <a href="#inicio">Inicio</a>
                 <a href="#productos">Kokedamas</a>
                 <a href="#cuidados">Cuidados</a>
+                <a href="#admin">Admin</a>
             </nav>
             <button class="cart-btn" onclick="toggleCart()">
                 🛒 Carrito
@@ -1394,6 +1509,76 @@
         </div>
     </section>
 
+    <!-- Admin Panel -->
+    <section class="admin-panel" id="admin" style="display:none;">
+        <div class="container">
+            <div class="section-header">
+                <h2>Panel de Administración</h2>
+                <p>Gestiona pedidos y stock</p>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="adminLogin" class="admin-login">
+                <div class="login-box">
+                    <h3>🔐 Acceso Admin</h3>
+                    <input type="password" id="adminPassword" placeholder="Contraseña">
+                    <button class="btn btn-primary" onclick="adminLogin()">Ingresar</button>
+                    <p id="loginError" style="color:red;display:none;">Contraseña incorrecta</p>
+                </div>
+            </div>
+            
+            <!-- Admin Dashboard -->
+            <div id="adminDashboard" style="display:none;">
+                <div class="admin-tabs">
+                    <button class="tab-btn active" onclick="showTab('pedidos')">Pedidos</button>
+                    <button class="tab-btn" onclick="showTab('stock')">Stock</button>
+                    <button class="tab-btn" onclick="showTab('nuevo')">Nuevo Pedido</button>
+                    <button class="tab-btn" onclick="adminLogout()">Salir</button>
+                </div>
+                
+                <!-- Tab: Pedidos -->
+                <div id="tab-pedidos" class="admin-tab">
+                    <div class="pedidos-list" id="pedidosList">
+                        <p>Cargando pedidos...</p>
+                    </div>
+                    <div class="resumen-mensual">
+                        <h4>Resumen del Mes</h4>
+                        <div id="resumenMes"></div>
+                    </div>
+                </div>
+                
+                <!-- Tab: Stock -->
+                <div id="tab-stock" class="admin-tab" style="display:none;">
+                    <table class="stock-table">
+                        <thead>
+                            <tr><th>Producto</th><th>Stock</th><th>Precio</th><th>Acción</th></tr>
+                        </thead>
+                        <tbody id="stockList"></tbody>
+                    </table>
+                </div>
+                
+                <!-- Tab: Nuevo Pedido -->
+                <div id="tab-nuevo" class="admin-tab" style="display:none;">
+                    <div class="nuevo-pedido-form">
+                        <h4>Registrar Venta Presencial</h4>
+                        <input type="text" id="clienteNombre" placeholder="Nombre cliente" required>
+                        <input type="tel" id="clienteTelefono" placeholder="Teléfono">
+                        <input type="text" id="clienteDireccion" placeholder="Dirección">
+                        <select id="productoVenta">
+                            <option value="">Seleccionar producto</option>
+                        </select>
+                        <input type="number" id="cantidadVenta" placeholder="Cantidad" value="1" min="1">
+                        <select id="pagoVenta">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="transferencia">Transferencia</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="registrarVenta()">Registrar Venta</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer>
         <div class="container">
@@ -1408,6 +1593,7 @@
                         <li><a href="#inicio">Inicio</a></li>
                         <li><a href="#productos">Kokedamas</a></li>
                         <li><a href="#cuidados">Cuidados</a></li>
+                        <li><a href="#admin">Admin</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">
@@ -1795,6 +1981,188 @@
                 }
             });
         });
+    </script>
+    
+    <script>
+        // Admin Configuration
+        const ADMIN_PASSWORD = 'koke2024';
+        
+        // Admin Login
+        function adminLogin() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                localStorage.setItem('koke-admin', 'true');
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'block';
+                loadAdminData();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+        
+        // Check admin session
+        function checkAdminSession() {
+            if (localStorage.getItem('koke-admin') === 'true') {
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'block';
+                loadAdminData();
+            }
+        }
+        
+        // Admin Logout
+        function adminLogout() {
+            localStorage.removeItem('koke-admin');
+            document.getElementById('adminLogin').style.display = 'flex';
+            document.getElementById('adminDashboard').style.display = 'none';
+        }
+        
+        // Show admin tab
+        function showTab(tabName) {
+            document.querySelectorAll('.admin-tab').forEach(tab => tab.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-' + tabName).style.display = 'block';
+            event.target.classList.add('active');
+        }
+        
+        // Load admin data
+        async function loadAdminData() {
+            // Load pedidos
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/pedidos?order=created_at.desc&select=*`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    }
+                );
+                const pedidos = await response.json();
+                renderPedidos(pedidos);
+            } catch (e) {
+                console.error('Error loading pedidos:', e);
+            }
+            
+            // Load stock
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/productos?select=*`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    }
+                );
+                const productos = await response.json();
+                renderStock(productos);
+                populateProductoSelect(productos);
+            } catch (e) {
+                console.error('Error loading productos:', e);
+            }
+        }
+        
+        // Render pedidos list
+        function renderPedidos(pedidos) {
+            const container = document.getElementById('pedidosList');
+            if (!pedidos || pedidos.length === 0) {
+                container.innerHTML = '<p>No hay pedidos aún.</p>';
+                return;
+            }
+            
+            let html = '';
+            pedidos.forEach(pedido => {
+                const fecha = new Date(pedido.created_at).toLocaleDateString('es-AR');
+                const items = Array.isArray(pedido.items) ? pedido.items : JSON.parse(pedido.items);
+                const itemsText = items.map(i => `${i.nombre} x${i.cantidad}`).join(', ');
+                html += `
+                    <div class="pedido-item" style="border-bottom:1px solid #eee;padding:16px 0;">
+                        <div style="display:flex;justify-content:space-between;">
+                            <strong>${pedido.cliente_nombre}</strong>
+                            <span>$${pedido.total.toLocaleString()}</span>
+                        </div>
+                        <div style="color:#666;font-size:0.9rem;">${itemsText}</div>
+                        <div style="font-size:0.8rem;color:#999;">${fecha} - ${pedido.medio} - ${pedido.metodo_pago}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            
+            // Render resumen
+            const totalMes = pedidos.reduce((sum, p) => sum + p.total, 0);
+            document.getElementById('resumenMes').innerHTML = `
+                <p><strong>Total ingresos:</strong> $${totalMes.toLocaleString()}</p>
+                <p><strong>Pedidos:</strong> ${pedidos.length}</p>
+            `;
+        }
+        
+        // Render stock table
+        function renderStock(productos) {
+            const tbody = document.getElementById('stockList');
+            tbody.innerHTML = productos.map(p => `
+                <tr>
+                    <td>${p.nombre}</td>
+                    <td><input type="number" value="${p.stock}" min="0" onchange="updateStock('${p.id}', this.value)" style="width:60px;padding:8px;"></td>
+                    <td>$${p.precio.toLocaleString()}</td>
+                    <td><button onclick="actualizarStock('${p.id}')">Guardar</button></td>
+                </tr>
+            `).join('');
+        }
+        
+        // Populate producto select
+        function populateProductoSelect(productos) {
+            const select = document.getElementById('productoVenta');
+            select.innerHTML = '<option value="">Seleccionar producto</option>' + 
+                productos.map(p => `<option value="${p.id}" data-precio="${p.precio}">${p.nombre} - $${p.precio}</option>`).join('');
+        }
+        
+        // Register venta presencial
+        async function registrarVenta() {
+            const cliente = document.getElementById('clienteNombre').value.trim();
+            const telefono = document.getElementById('clienteTelefono').value.trim();
+            const direccion = document.getElementById('clienteDireccion').value.trim();
+            const productoId = document.getElementById('productoVenta').value;
+            const cantidad = parseInt(document.getElementById('cantidadVenta').value) || 1;
+            const metodoPago = document.getElementById('pagoVenta').value;
+            
+            if (!cliente || !productoId) {
+                alert('Completá nombre y producto');
+                return;
+            }
+            
+            // Get product info
+            const producto = products.find(p => p.id === productoId);
+            if (!producto) {
+                alert('Producto no encontrado');
+                return;
+            }
+            
+            const orderData = {
+                cliente_nombre: cliente,
+                cliente_telefono: telefono,
+                cliente_direccion: direccion,
+                items: [{ nombre: producto.nombre, cantidad: cantidad, precio: producto.precio, subtotal: producto.precio * cantidad }],
+                total: producto.precio * cantidad,
+                medio: 'presencial',
+                metodo_pago: metodoPago,
+                created_at: new Date().toISOString()
+            };
+            
+            const saved = await saveOrderToSupabase(orderData);
+            if (saved) {
+                alert('Venta registrada! ✅');
+                document.getElementById('clienteNombre').value = '';
+                document.getElementById('clienteTelefono').value = '';
+                document.getElementById('clienteDireccion').value = '';
+                document.getElementById('cantidadVenta').value = '1';
+                loadAdminData();
+            } else {
+                alert('Error al registrar venta');
+            }
+        }
+        
+        // Check admin on load
+        checkAdminSession();
     </script>
 </body>
 </html>
