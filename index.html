@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@450&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://js.supabase.com"></script>
     <style>
         :root {
             --primary: #2D5A3D;
@@ -1477,35 +1478,109 @@
     <div class="toast" id="toast">¡Agregado al carrito! ✨</div>
 
     <script>
-        // Products data
-        const products = [
-            { id: 1, name: 'Sansiviera', description: 'Purificadora de aire. Resistente y elegante.', price: 4500, image: 'img/kokedama-Lengua-de-suegra.jpg', color: '#E8F5E9' },
-            { id: 2, name: 'Potus', description: 'Enredadera facilisima. Perfecta para principiantes.', price: 3800, image: 'img/kokedama_potus_2.webp', color: '#C8E6C9' },
-            { id: 3, name: 'Jade', description: 'Suculenta de suerte. Prosperidad para tu hogar.', price: 3200, image: 'img/kokedama_jade.webp', color: '#E0F2F1' },
-            { id: 4, name: 'Tradescantia', description: 'Hojas zebradas violetas. Colores únicos.', price: 4200, image: 'img/kokedama_pasion_purpura.jpg', color: '#EDE7F6' },
-            { id: 5, name: 'Monstera', description: 'Hojas perforadas. Selva urbana en tu casa.', price: 5500, image: 'img/kokedama-adansonii.webp', color: '#E8F5E9' },
-            { id: 6, name: 'Lazo de Amor', description: 'Corazones colgantes. Amor en forma de planta.', price: 4000, image: 'img/kokedama_lazo_amor.webp', color: '#FFEBEE' }
-        ];
-
-        // Cart state
-        let cart = [];
-
-        // Render products
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://jszskugslfgfuzwpidws.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_SU3ltMvATU4R2U83NRXVYQ_kTlfba4J';
+        
+        // Products data from Supabase
+        let products = [];
+        
+        // Initialize
+        async function init() {
+            await loadProducts();
+            initTheme();
+        }
+        
+        // Load products from Supabase
+        async function loadProducts() {
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/productos?activo=eq.true&select=*`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    }
+                );
+                products = await response.json();
+                renderProducts();
+            } catch (error) {
+                console.error('Error loading products:', error);
+                // Fallback to local products if Supabase fails
+                products = [
+                    { id: 1, nombre: 'Sansiviera', descripcion: 'Purificadora de aire.', precio: 4500, imagen: 'img/kokedama-Lengua-de-suegra.jpg' },
+                    { id: 2, nombre: 'Potus', descripcion: 'Enredadera facilisima.', precio: 3800, imagen: 'img/kokedama_potus_2.webp' },
+                    { id: 3, nombre: 'Jade', descripcion: 'Suculenta de suerte.', precio: 3200, imagen: 'img/kokedama_jade.webp' },
+                    { id: 4, nombre: 'Tradescantia', descripcion: 'Hojas zebradas.', precio: 4200, imagen: 'img/kokedama_pasion_purpura.jpg' },
+                    { id: 5, nombre: 'Monstera', descripcion: 'Hojas perforadas.', precio: 5500, imagen: 'img/kokedama-adansonii.webp' },
+                    { id: 6, nombre: 'Lazo de Amor', descripcion: 'Corazones.', precio: 4000, imagen: 'img/kokedama_lazo_amor.webp' }
+                ];
+                renderProducts();
+            }
+        }
+        
+        // Save order to Supabase
+        async function saveOrderToSupabase(orderData) {
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/pedidos`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify(orderData)
+                    }
+                );
+                return response.ok;
+            } catch (error) {
+                console.error('Error saving order:', error);
+                return false;
+            }
+        }
+        
+        // Render products from Supabase data
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
             grid.innerHTML = products.map(product => {
-                const imageHtml = product.image 
-                    ? `<img src="${product.image}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">`
+                const imageHtml = product.imagen 
+                    ? `<img src="${product.imagen}" alt="${product.nombre}" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">`
                     : `<span style="font-size:5rem;">🌿</span>`;
+                const id = product.id || product.nombre;
                 return `
                     <div class="product-card">
-                        <div class="product-image" style="background:${product.color}">${imageHtml}</div>
+                        <div class="product-image" style="background:#E8F5E9">${imageHtml}</div>
                         <div class="product-info">
-                            <h3>${product.name}</h3>
-                            <p>${product.description}</p>
+                            <h3>${product.nombre}</h3>
+                            <p>${product.descripcion}</p>
                             <div class="product-footer">
-                                <span class="price">$${product.price.toLocaleString()}</span>
-                                <button class="add-btn" onclick="addToCart(${product.id})">Agregar</button>
+                                <span class="price">$${parseInt(product.precio).toLocaleString()}</span>
+                                <button class="add-btn" onclick="addToCart('${id}')">Agregar</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Cart state
+        let cart = [];
+        
+        // Add to cart - updated for Supabase IDs
+        function addToCart(productId) {
+            const existing = cart.find(item => item.productId === productId);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ productId, qty: 1 });
+            }
+            updateCartUI();
+            showToast();
+        }
                             </div>
                         </div>
                     </div>
@@ -1562,35 +1637,54 @@
                 `;
             } else {
                 cartItemsEl.innerHTML = cart.map(item => {
-                    const product = products.find(p => p.id === item.productId);
-                    const thumbImage = product.image
-                        ? `<img src="${product.image}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
+                    const product = products.find(p => (p.id || p.nombre) === item.productId);
+                    const thumbImage = product.imagen
+                        ? `<img src="${product.imagen}" alt="${product.nombre}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
                         : `<span style="font-size:1.4rem;">🌿</span>`;
                     return `
                         <div class="cart-item">
-                            <div class="cart-item-image" style="background: ${product.color}">${thumbImage}</div>
+                            <div class="cart-item-image" style="background: #E8F5E9">${thumbImage}</div>
                             <div class="cart-item-info">
-                                <h4>${product.name}</h4>
-                                <p>$${product.price.toLocaleString()}</p>
+                                <h4>${product.nombre}</h4>
+                                <p>$${parseInt(product.precio).toLocaleString()}</p>
                             </div>
                             <div class="cart-item-qty">
-                                <button class="qty-btn" onclick="updateQty(${product.id}, -1)">-</button>
+                                <button class="qty-btn" onclick="updateQty('${item.productId}', -1)">-</button>
                                 <span>${item.qty}</span>
-                                <button class="qty-btn" onclick="updateQty(${product.id}, 1)">+</button>
+                                <button class="qty-btn" onclick="updateQty('${item.productId}', 1)">+</button>
                             </div>
-                            <button class="remove-item" onclick="removeFromCart(${product.id})">🗑️</button>
+                            <button class="remove-item" onclick="removeFromCart('${item.productId}')">🗑️</button>
                         </div>
                     `;
                 }).join('');
                 document.getElementById('whatsappBtn').disabled = false;
             }
 
-            // Update total
+// Update total
             const total = cart.reduce((sum, item) => {
-                const product = products.find(p => p.id === item.productId);
-                return sum + (product.price * item.qty);
+                const product = products.find(p => (p.id || p.nombre) === item.productId);
+                return sum + (parseInt(product.precio) * item.qty);
             }, 0);
             document.getElementById('cartTotal').textContent = `$${total.toLocaleString()}`;
+        }
+
+        // Remove from cart
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.productId !== productId);
+            updateCartUI();
+        }
+
+        // Update quantity
+        function updateQty(productId, change) {
+            const item = cart.find(item => item.productId === productId);
+            if (item) {
+                item.qty += change;
+                if (item.qty <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    updateCartUI();
+                }
+            }
         }
 
         // Toggle cart
@@ -1607,7 +1701,7 @@
         }
 
         // Send to WhatsApp
-        function sendToWhatsapp() {
+        async function sendToWhatsapp() {
             const name = document.getElementById('customerName').value.trim();
             const phone = document.getElementById('customerPhone').value.trim();
             const address = document.getElementById('customerAddress').value.trim();
@@ -1619,7 +1713,36 @@
                 return;
             }
 
-            // Build message
+            // Build items array and message
+            const items = cart.map(item => {
+                const product = products.find(p => (p.id || p.nombre) === item.productId);
+                return {
+                    nombre: product.nombre,
+                    cantidad: item.qty,
+                    precio: product.precio,
+                    subtotal: product.precio * item.qty
+                };
+            });
+
+            const total = items.reduce((sum, item) => sum + item.subtotal, 0);
+
+            // Save order to Supabase
+            const orderData = {
+                cliente_nombre: name,
+                cliente_telefono: phone,
+                cliente_direccion: address,
+                items: items,
+                total: total,
+                medio: 'web',
+                metodo_pago: payment === 'efectivo' ? 'efectivo' : 'transferencia',
+                notas: note || null,
+                created_at: new Date().toISOString()
+            };
+            
+            // Save to Supabase (async, don't wait for response)
+            saveOrderToSupabase(orderData);
+
+            // Build WhatsApp message
             let message = `*NUEVO PEDIDO - koke*%0A%0A`;
             message += `*DATOS DEL CLIENTE:*%0A`;
             message += `• Nombre: ${name}%0A`;
@@ -1629,18 +1752,13 @@
             if (note) message += `• Nota: ${note}%0A`;
             message += `%0A*PEDIDO:*%0A`;
 
-            let total = 0;
-            cart.forEach(item => {
-                const product = products.find(p => p.id === item.productId);
-                const subtotal = product.price * item.qty;
-                total += subtotal;
-                message += `• ${product.name} x${item.qty} = $${subtotal.toLocaleString()}%0A`;
+            items.forEach(item => {
+                message += `• ${item.nombre} x${item.cantidad} = $${item.subtotal.toLocaleString()}%0A`;
             });
 
             message += `%0A*TOTAL: $${total.toLocaleString()}*%0A`;
             message += `%0AGracias por tu compra! 🙏`;
 
-            // WhatsApp number - REPLACE with actual number
             const whatsappNumber = '5493518900315';
             const url = `https://wa.me/${whatsappNumber}?text=${message}`;
 
@@ -1648,8 +1766,7 @@
         }
 
         // Initialize
-        renderProducts();
-        initTheme();
+        init();
 
         // Theme toggle
         function initTheme() {
