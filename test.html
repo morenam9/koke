@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Supabase</title>
+</head>
+<body>
+    <h1>Test KOKE Supabase</h1>
+    <div id="result">Cargando...</div>
+    <script>
+        const SUPABASE_URL = 'https://jszskugslfgfuzwpidws.supabase.co';
+        const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpzenNrdWdzbGZnZnV6d3BpZHdzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzMyMTI5MiwiZXhwIjoyMDkyODk3MjkyfQ.4jMjsJCKTHqvAHR7-45JLw8fKGOaEr83-H5DL6enys0';
+        
+        fetch(SUPABASE_URL + '/rest/v1/productos?select=*', {
+            headers: {
+                apikey: KEY,
+                Authorization: 'Bearer ' + KEY
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        })
+        .catch(e => {
+            document.getElementById('result').innerHTML = 'Error: ' + e.message;
+        });
+    </script>
+</body>
+</html>
