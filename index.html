@@ -1981,13 +1981,13 @@
                 }
             });
         });
-    </script>
-    
-    <script>
-        // Admin Configuration
+        
+        // ==========================================
+        // ADMIN PANEL FUNCTIONS
+        // ==========================================
+        
         const ADMIN_PASSWORD = 'koke2024';
         
-        // Admin Login
         function adminLogin() {
             const password = document.getElementById('adminPassword').value;
             if (password === ADMIN_PASSWORD) {
@@ -2000,7 +2000,6 @@
             }
         }
         
-        // Check admin session
         function checkAdminSession() {
             if (localStorage.getItem('koke-admin') === 'true') {
                 document.getElementById('adminLogin').style.display = 'none';
@@ -2009,14 +2008,13 @@
             }
         }
         
-        // Admin Logout
         function adminLogout() {
             localStorage.removeItem('koke-admin');
             document.getElementById('adminLogin').style.display = 'flex';
             document.getElementById('adminDashboard').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
         }
         
-        // Show admin tab
         function showTab(tabName) {
             document.querySelectorAll('.admin-tab').forEach(tab => tab.style.display = 'none');
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -2024,12 +2022,10 @@
             event.target.classList.add('active');
         }
         
-        // Load admin data
         async function loadAdminData() {
-            // Load pedidos
             try {
-                const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/pedidos?order=created_at.desc&select=*`,
+                const pResponse = await fetch(
+                    `${SUPABASE_URL}/rest/v1/pedidos?order=created_at.desc&limit=50`,
                     {
                         headers: {
                             'apikey': SUPABASE_KEY,
@@ -2037,15 +2033,14 @@
                         }
                     }
                 );
-                const pedidos = await response.json();
+                const pedidos = await pResponse.json();
                 renderPedidos(pedidos);
             } catch (e) {
-                console.error('Error loading pedidos:', e);
+                console.error('Error:', e);
             }
             
-            // Load stock
             try {
-                const response = await fetch(
+                const prResponse = await fetch(
                     `${SUPABASE_URL}/rest/v1/productos?select=*`,
                     {
                         headers: {
@@ -2054,26 +2049,24 @@
                         }
                     }
                 );
-                const productos = await response.json();
-                renderStock(productos);
-                populateProductoSelect(productos);
+                const prods = await prResponse.json();
+                renderStock(prods);
+                populateProductoSelect(prods);
             } catch (e) {
-                console.error('Error loading productos:', e);
+                console.error('Error:', e);
             }
         }
         
-        // Render pedidos list
         function renderPedidos(pedidos) {
             const container = document.getElementById('pedidosList');
             if (!pedidos || pedidos.length === 0) {
                 container.innerHTML = '<p>No hay pedidos aún.</p>';
                 return;
             }
-            
             let html = '';
             pedidos.forEach(pedido => {
                 const fecha = new Date(pedido.created_at).toLocaleDateString('es-AR');
-                const items = Array.isArray(pedido.items) ? pedido.items : JSON.parse(pedido.items);
+                const items = Array.isArray(pedido.items) ? pedido.items : JSON.parse(pedido.items || '[]');
                 const itemsText = items.map(i => `${i.nombre} x${i.cantidad}`).join(', ');
                 html += `
                     <div class="pedido-item" style="border-bottom:1px solid #eee;padding:16px 0;">
@@ -2087,36 +2080,30 @@
                 `;
             });
             container.innerHTML = html;
-            
-            // Render resumen
             const totalMes = pedidos.reduce((sum, p) => sum + p.total, 0);
-            document.getElementById('resumenMes').innerHTML = `
-                <p><strong>Total ingresos:</strong> $${totalMes.toLocaleString()}</p>
-                <p><strong>Pedidos:</strong> ${pedidos.length}</p>
-            `;
+            document.getElementById('resumenMes').innerHTML = `<p><strong>Total:</strong> $${totalMes.toLocaleString()}</p><p><strong>Pedidos:</strong> ${pedidos.length}</p>`;
         }
         
-        // Render stock table
         function renderStock(productos) {
             const tbody = document.getElementById('stockList');
+            if (!tbody) return;
             tbody.innerHTML = productos.map(p => `
                 <tr>
                     <td>${p.nombre}</td>
-                    <td><input type="number" value="${p.stock}" min="0" onchange="updateStock('${p.id}', this.value)" style="width:60px;padding:8px;"></td>
-                    <td>$${p.precio.toLocaleString()}</td>
-                    <td><button onclick="actualizarStock('${p.id}')">Guardar</button></td>
+                    <td>${p.stock || 0}</td>
+                    <td>$${p.precio}</td>
+                    <td><button onclick="alert('Funcionalidad en desarrollo')">Editar</button></td>
                 </tr>
             `).join('');
         }
         
-        // Populate producto select
         function populateProductoSelect(productos) {
             const select = document.getElementById('productoVenta');
-            select.innerHTML = '<option value="">Seleccionar producto</option>' + 
+            if (!select) return;
+            select.innerHTML = '<option value="">Seleccionar</option>' + 
                 productos.map(p => `<option value="${p.id}" data-precio="${p.precio}">${p.nombre} - $${p.precio}</option>`).join('');
         }
         
-        // Register venta presencial
         async function registrarVenta() {
             const cliente = document.getElementById('clienteNombre').value.trim();
             const telefono = document.getElementById('clienteTelefono').value.trim();
@@ -2130,12 +2117,8 @@
                 return;
             }
             
-            // Get product info
             const producto = products.find(p => p.id === productoId);
-            if (!producto) {
-                alert('Producto no encontrado');
-                return;
-            }
+            if (!producto) return;
             
             const orderData = {
                 cliente_nombre: cliente,
@@ -2150,18 +2133,14 @@
             
             const saved = await saveOrderToSupabase(orderData);
             if (saved) {
-                alert('Venta registrada! ✅');
-                document.getElementById('clienteNombre').value = '';
-                document.getElementById('clienteTelefono').value = '';
-                document.getElementById('clienteDireccion').value = '';
-                document.getElementById('cantidadVenta').value = '1';
+                alert('Venta registrada!');
                 loadAdminData();
             } else {
-                alert('Error al registrar venta');
+                alert('Error');
             }
         }
         
-        // Check admin on load
+        // Init
         checkAdminSession();
     </script>
 </body>
